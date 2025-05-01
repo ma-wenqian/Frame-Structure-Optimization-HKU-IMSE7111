@@ -4,6 +4,7 @@ import opsvis as opsv
 import matplotlib.pyplot as plt
 import math
 import os
+
 # Units: N, mm, Sec, MPa, 10^3Kg (Tonne)
 
 
@@ -149,7 +150,7 @@ def dynamic_analysis():
     ops.integrator('Newmark', 0.5, 0.25)  # uses Newmark's average acceleration method to compute the time history
     ops.analysis('Transient')  # type of analysis: transient or static
     
-    GMtime = 15 # only the first 6 seconds of the record
+    GMtime = 15 # only the first 15 seconds of the record
     dt_analysis = 0.002  # timestep of analysis
     NumSteps = round(GMtime / dt_analysis)  # number of steps in analysis
     u17 = np.full(NumSteps, np.nan)
@@ -170,44 +171,35 @@ def dynamic_analysis():
     # plt.title('Node 17 Displacement')
     # plt.xlabel('Time (s)')
     # plt.ylabel('Displacement (mm)')
-    return max_u17, u17        
+    return max_u17, np.arange(0, GMtime, dt_analysis), u17
 
-
-
+def result_save(d, file_name="result"):
+    TotalMass = frame_model(d)
+    max_u17, time, u17 = dynamic_analysis()
+    print(f"d={d}")
+    print("Total Mass (T)\tMax Displacement (mm)")
+    print(f"{TotalMass:.4f}\t\t{max_u17:.4f}")
+    if not os.path.exists("results"):
+        os.makedirs("results")
+    resultfile = os.path.join("results", f'{file_name}.txt')
+    data = np.column_stack((time, u17))
+    np.savetxt(resultfile, data, header="Time (s), Displacement (mm)", comments=f'# d={d}\n# TotalMass={TotalMass}T, max_u17={max_u17}mm\n', delimiter=',')
+    print(f"Results saved to {resultfile}")
 
 if __name__ == "__main__":
-    # opsv.plot_model()
-    # plt.show()
-    d = np.array([400.0]*8)
-    t=np.array([0.44]*8)
-    # d = np.array([900.29947258, 645.89892141, 305.74236097, 436.84774835, 478.42154976,
-    #             573.8024521, 534.93542054, 508.33814573])
-    # d = np.array([379.6947652, 261.65626306, 254.54039221, 519.63221578, 707.17412933,
-    #             359.88446174, 499.53554098, 277.10018459])
-    # d = np.array([779.74579774, 785.51315688, 185.00543629, 546.57923574, 1184.07762403,
-    #             354.48343086, 1166.24176196, 589.83300546])
-    # d = np.array([414,733,615,786,457,582,750,725])
-    d=np.array([592.51861147, 507.88073366, 294.20882149, 577.35540861, 435.48225459,
-    394.92961575, 277.23782801, 325.32361819])
-    d= np.array([1075,801,898,885,907,896,793,729])
-    d = np.array([409.76663974, 357.15104493, 190.71338867, 187.72976204, 359.6393754,
-                161.03425334, 200.18777589, 527.89646098])
-    d = np.array([183.46538014, 591.02330894, 405.47789348, 159.56549327, 515.37585444,
-        216.09827401, 451.61526161, 263.54019501])
-    d = np.array([186,338,397,572,236,330,337,331])
-    TotalMass = frame_model(d)
-    max_u17, _ = dynamic_analysis()
+    print("frame_model.py")
+    # pre1 = np.array([150.0]*8) # predesigned, pre1
+    # pre2 = np.array([400.0]*8) # predesigned, pre2
+    # pre3 = np.array([650.0]*8) # predesigned, pre3
 
+    # result_save(pre1, "pre1")
+    # result_save(pre2, "pre2")
+    # result_save(pre3, "pre3")
 
-    print("Total Mass (T)\tMax Displacement (mm)\tu*Mass")
-    print(f"{TotalMass:.4f}\t\t{max_u17:.4f}\t\t{max_u17*TotalMass:.4f}")
-
-    # print(f"Total Mass = {TotalMass:.4f} T")
-    # print(f"Max Displacement = {max_u17:.4f} mm")
-    # print(max_u17/TotalMass)
-
-
-    # opsv.plot_model()
+    # show the model
+    # opsv.plot_model(False, False) # not show the node tags and element tags
+    # opsv.plot_model(True, True) # show the node tags and element tags
+    # plt.axis('off')  # Remove axes from the plot
     # plt.show()
 
 
