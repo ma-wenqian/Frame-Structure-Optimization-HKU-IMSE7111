@@ -24,7 +24,7 @@ def frame_model(d, t = np.array([0.05]*8)):
     density = 7.3  # T/m^3
     I = (d**4 - (d-d*t)**4) / 12 # Moment of Inertia, mm^4
     area = d**2 - (d-d*t)**2  # mm^2
-    TotalMass = ( np.sum(2 * HStory *area[0:4]) + np.sum(area[4:8]*WBay*3) ) * density * 1e-9  # T
+    TotalMass = ( np.sum(4 * HStory *area[0:4]) + np.sum(area[4:8]*WBay*3) ) * density * 1e-9  # T
     nodalMass = TotalMass / ((NBays + 1 )* (NFloors - 1))  # T
 
     # Calculate the locations of beam-coumn joint centerlines
